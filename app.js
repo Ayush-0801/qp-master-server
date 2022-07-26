@@ -94,6 +94,7 @@ const port = process.env.PORT || '5000';
  app.post('/updateSeek',(req, res)=>{
   currSeek=req.body.seek;
   currID=req.body.song;
+  console.log(currSeek,currID);
   res.send("Seek Updated");
  })
 
