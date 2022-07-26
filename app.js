@@ -90,6 +90,16 @@ const port = process.env.PORT || '5000';
  
    res.send({activeUser:[user1Active,user2Active,user3Active,user4Active]})
  })
+
+ app.post('/updateSeek',(req, res)=>{
+  currSeek=req.body.seek;
+  currID=req.body.song;
+  res.send("Seek Updated");
+ })
+
+ app.get('/getSeek',(req, res)=>{
+  res.send({seek:currSeek, id:currID});
+ })
  
  app.listen(port, () =>
     console.log(
@@ -102,6 +112,8 @@ const port = process.env.PORT || '5000';
  
  var queue = []; 
  var colorArr = [];
+ var currSeek=0;
+ var currID='';
  var user1Active=false;
  var user2Active=false;
  var user3Active=false;
