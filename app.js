@@ -96,7 +96,8 @@ const port = '8000';
       'HTTP Server up. Now go to http://localhost:8000 in your browser.'
     )
   );
- 
+
+  
  //////////// Server Helper Functions ///////////
  
  var queue = []; 
