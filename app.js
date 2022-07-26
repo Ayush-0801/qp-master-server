@@ -6,8 +6,8 @@
  var fs= require('fs');
  var bodyParser = require("body-parser");
 
-// const port = process.env.PORT || '5000';
-const port = '8000';
+const port = process.env.PORT || '5000';
+// const port = '8000';
 
  
  //Initialising the express server
@@ -93,7 +93,7 @@ const port = '8000';
  
  app.listen(port, () =>
     console.log(
-      'HTTP Server up. Now go to http://localhost:8000 in your browser.'
+      'HTTP Server up. Now go to http://localhost:${port} in your browser.'
     )
   );
 
