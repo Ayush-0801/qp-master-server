@@ -1,41 +1,63 @@
- //Depedency variables
- const express = require('express')
- var cors = require('cors');
- var querystring = require('querystring');
- var cookieParser = require('cookie-parser');
- var fs= require('fs');
- var bodyParser = require("body-parser");
+//Depedency variables
+const express = require('express')
+var cors = require('cors');
+var querystring = require('querystring');
+var cookieParser = require('cookie-parser');
+var fs= require('fs');
+var bodyParser = require("body-parser");
 
 const port = process.env.PORT || '5000';
 // const port = '8000';
 
+//Initialising the express server
+const app = express();
+app.use(bodyParser.json());
+const { ppid } = require('process');
  
- //Initialising the express server
- const app = express();
- app.use(bodyParser.json());
- const { ppid } = require('process');
+app.use(cors())
+  .use(cookieParser());
  
- app.use(cors())
-    .use(cookieParser());
- 
- //Authorization flow for the Spotify API 
- app.get('/', (req, res) => {
-   res.send("Queue Server Up!!");
- });
+//Authorization flow for the Spotify API 
+app.get('/', (req, res) => {
+  res.send("Queue Server Up!!");
+});
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+app.post('/toggleClientActive',(req, res)=>{
+  console.log("Current Client Number:" + req.body.clientID);
+  if(req.body.clientID==1)
+  {
+    client1Active=!client1Active;
+  }
+  else if(req.body.clientID==2)
+  {
+    client2Active=!client2Active;
+  }
+  else if(req.body.clientID==3)
+  {
+    client3Active=!client3Active;
+  }
+  else if(req.body.clientID==4)
+  {
+    client4Active=!client4Active;
+  }
+
+  res.send({"Client 1" : client1Active, "Client 2" : client2Active, "Client 3" : client3Active, "Client 4" : client4Active})
+
+})
    
  
  //Get the Track to play as requested by the client
  app.post('/getTrackToPlay', (req, res) => {
    var trackInfos = readDatabase();
    var bpmData=getDatafromBPM(trackInfos, req.body.bpm);
-   var songAddition = processDatabase(bpmData, req.body.userID);
+   var songAddition = processDatabase(bpmData, req.body.clientID,0);
    queue=songAddition;
-   var q=queue.shift();
+  //  var q=queue.shift();
    var cr=getColorSequence(queue);
    // userControl(req.body.userID);
-   res.send({"queue": queue, "song":q, "color": cr});
- 
-   console.log(queue);
+   res.send({"queue": queue, "song":queue[0], "color": cr});
  })
  
  
@@ -69,28 +91,6 @@ const port = process.env.PORT || '5000';
    res.send({"queue": queue, "song":q, "color": cr});
  })
   
- app.post('/makeActive',(req, res)=>{
-   console.log(req.body.user_id);
-   if(req.body.user_id==1)
-   {
-     user1Active=true;
-   }
-   else if(req.body.user_id==2)
-   {
-     user2Active=true;
-   }
-   else if(req.body.user_id==3)
-   {
-     user3Active=true;
-   }
-   else if(req.body.user_id==4)
-   {
-     user4Active=true;
-   }
- 
-   res.send({activeUser:[user1Active,user2Active,user3Active,user4Active]})
- })
-
  app.post('/updateSeek',(req, res)=>{
   currSeek=req.body.seek;
   currID=req.body.song;
@@ -115,10 +115,10 @@ const port = process.env.PORT || '5000';
  var colorArr = [];
  var currSeek=0;
  var currID='hihi';
- var user1Active=false;
- var user2Active=false;
- var user3Active=false;
- var user4Active=false;
+ var client1Active=false;
+ var client2Active=false;
+ var client3Active=false;
+ var client4Active=false;
  var user1Added=false;
  var user2Added=false;
  var user3Added=false;
@@ -160,7 +160,7 @@ const port = process.env.PORT || '5000';
    qpData.sort((first,second) => {
        return first.danceability - second.danceability;
    });
-   
+
    //Choosing the first song from the user interacted
    let l=0;
    while(l<qpData.length &&  !qpData[l].user_id.includes(user))
